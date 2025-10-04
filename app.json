@@ -2,7 +2,7 @@
   "expo": {
     "name": "OllamaGo",
     "slug": "ollama-go",
-    "version": "1.0.0",
+    "version": "1.0.4",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "splash": {
@@ -16,7 +16,7 @@
     },
     "android": {
       "package": "com.xt67.ollamago",
-      "versionCode": 2,
+      "versionCode": 4,
       "permissions": [
         "INTERNET",
         "ACCESS_NETWORK_STATE"

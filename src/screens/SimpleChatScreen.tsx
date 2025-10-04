@@ -316,6 +316,19 @@ const SimpleChatScreen: React.FC<ChatScreenProps> = ({navigation}) => {
       const protocol = connectionConfig.useHttps ? 'https' : 'http';
       const url = `${protocol}://${connectionConfig.serverUrl}:${connectionConfig.port}/api/generate`;
       
+      // Build conversation context from message history
+      let conversationContext = '';
+      messages.forEach(msg => {
+        if (msg.isUser) {
+          conversationContext += `User: ${msg.text}\n`;
+        } else {
+          conversationContext += `Assistant: ${msg.text}\n`;
+        }
+      });
+      
+      // Add current message to context
+      conversationContext += `User: ${userMessage.text}\nAssistant:`;
+      
       const response = await fetch(url, {
         method: 'POST',
         headers: {
@@ -324,7 +337,7 @@ const SimpleChatScreen: React.FC<ChatScreenProps> = ({navigation}) => {
         },
         body: JSON.stringify({
           model: availableModel, // Auto-detected model
-          prompt: userMessage.text,
+          prompt: conversationContext,
           stream: false,
         }),
       });
