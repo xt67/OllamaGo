@@ -47,12 +47,14 @@ const SimpleChatScreen: React.FC<ChatScreenProps> = ({navigation}) => {
   const [sidebarAnimation] = useState(new Animated.Value(-280));
   const [chatHistory, setChatHistory] = useState<any[]>([]);
   const [currentChatId, setCurrentChatId] = useState<string | null>(null);
+  const [persistentMemory, setPersistentMemory] = useState<string>(''); // Global memory across all chats
   const insets = useSafeAreaInsets();
 
   useEffect(() => {
     loadConfig();
     initializeChat();
     loadChatHistory();
+    loadPersistentMemory();
   }, []);
 
   useEffect(() => {
@@ -191,6 +193,41 @@ const SimpleChatScreen: React.FC<ChatScreenProps> = ({navigation}) => {
     ]);
   };
 
+  const loadPersistentMemory = async () => {
+    try {
+      const savedMemory = await AsyncStorage.getItem('persistentMemory');
+      if (savedMemory) {
+        setPersistentMemory(savedMemory);
+        console.log('Loaded persistent memory:', savedMemory);
+      }
+    } catch (error) {
+      console.error('Failed to load persistent memory:', error);
+    }
+  };
+
+  const savePersistentMemory = async (memory: string) => {
+    try {
+      await AsyncStorage.setItem('persistentMemory', memory);
+      setPersistentMemory(memory);
+      console.log('Saved persistent memory:', memory);
+    } catch (error) {
+      console.error('Failed to save persistent memory:', error);
+    }
+  };
+
+  const updatePersistentMemory = async (userMessage: string, aiResponse: string) => {
+    // Extract important information from the conversation
+    const conversationPair = `User: ${userMessage}\nAssistant: ${aiResponse}\n`;
+    const updatedMemory = persistentMemory + conversationPair;
+    
+    // Keep only the last 2000 characters to avoid memory bloat
+    const trimmedMemory = updatedMemory.length > 2000 
+      ? updatedMemory.slice(-2000) 
+      : updatedMemory;
+    
+    await savePersistentMemory(trimmedMemory);
+  };
+
   const openSidebar = () => {
     setShowSidebar(true);
     Animated.timing(sidebarAnimation, {
@@ -265,6 +302,26 @@ const SimpleChatScreen: React.FC<ChatScreenProps> = ({navigation}) => {
     );
   };
 
+  const handleClearMemory = async () => {
+    Alert.alert(
+      'Clear Memory',
+      'This will make the AI forget everything it learned about you across all chats. Are you sure?',
+      [
+        {text: 'Cancel', style: 'cancel'},
+        {
+          text: 'Clear Memory',
+          style: 'destructive',
+          onPress: async () => {
+            await AsyncStorage.removeItem('persistentMemory');
+            setPersistentMemory('');
+            Alert.alert('Memory Cleared', 'The AI has forgotten everything from previous conversations.');
+            closeSidebar();
+          }
+        }
+      ]
+    );
+  };
+
   const loadChat = (chat: any) => {
     console.log('🔵 LOAD CHAT CLICKED:', chat.preview);
     setMessages(chat.messages || []);
@@ -316,8 +373,16 @@ const SimpleChatScreen: React.FC<ChatScreenProps> = ({navigation}) => {
       const protocol = connectionConfig.useHttps ? 'https' : 'http';
       const url = `${protocol}://${connectionConfig.serverUrl}:${connectionConfig.port}/api/generate`;
       
-      // Build conversation context from message history
+      // Build conversation context starting with persistent memory
       let conversationContext = '';
+      
+      // Add persistent memory first (knowledge from all previous chats)
+      if (persistentMemory) {
+        conversationContext += `[Previous conversations and learned information:]\n${persistentMemory}\n\n`;
+      }
+      
+      // Then add current chat messages
+      conversationContext += '[Current conversation:]\n';
       messages.forEach(msg => {
         if (msg.isUser) {
           conversationContext += `User: ${msg.text}\n`;
@@ -351,6 +416,9 @@ const SimpleChatScreen: React.FC<ChatScreenProps> = ({navigation}) => {
           timestamp: new Date(),
         };
         setMessages(prev => [...prev, aiMessage]);
+        
+        // Save this exchange to persistent memory
+        await updatePersistentMemory(userMessage.text, aiMessage.text);
       } else {
         const errorText = await response.text();
         throw new Error(`Server error ${response.status}: ${errorText}`);
