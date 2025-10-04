@@ -6,6 +6,11 @@ OllamaGo is a powerful React Native mobile application that brings the power of 
 
 [![Latest Release](https://img.shields.io/github/v/release/xt67/OllamaGo)](https://github.com/xt67/OllamaGo/releases/latest)
 [![License](https://img.shields.io/github/license/xt67/OllamaGo)](LICENSE)
+[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-support-yellow.svg)](https://buymeacoffee.com/xt67)
+
+<a href="https://www.buymeacoffee.com/xt67" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
+
+---
 
 ## ✨ Key Features
 
@@ -430,31 +435,42 @@ npm run build:ios
    - Verify ANDROID_HOME environment variable
    - Clean and rebuild: `cd android && ./gradlew clean && cd ..`
 
-## Contributing
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
 
 1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly on both platforms
-5. Submit a pull request
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
-## Security Considerations
+## 💖 Support the Project
 
-- Always use HTTPS for remote connections
-- Store API keys securely using device keychain
-- Validate all server inputs
-- Use proper network timeout configurations
-- Implement proper error handling for network failures
+If you find OllamaGo useful and want to support its development:
 
-## License
+<a href="https://www.buymeacoffee.com/xt67" target="_blank">
+  <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" height="50" width="217">
+</a>
 
-MIT License - see LICENSE file for details
+Your support helps me:
+- 🚀 Continue developing new features
+- 🐛 Fix bugs and improve performance
+- 📱 Add iOS support
+- 🎨 Enhance the user experience
+- 📚 Create better documentation
 
-## Support
+Every coffee counts! ☕️
 
-For issues and questions:
-- Check the troubleshooting section above
-- Review Ollama documentation
+## 📝 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 📧 Support
+
+If you encounter any issues or have questions:
+- Open an [Issue](https://github.com/xt67/OllamaGo/issues)
+- Check the [Releases](https://github.com/xt67/OllamaGo/releases) for the latest version
 - File an issue on GitHub
 
 ---

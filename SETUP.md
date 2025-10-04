@@ -436,6 +436,22 @@ cd android
 
 ---
 
+## 💖 Support the Project
+
+If OllamaGo has been helpful to you, consider supporting its development:
+
+<a href="https://www.buymeacoffee.com/xt67" target="_blank">
+  <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" height="50">
+</a>
+
+Your support helps:
+- ✨ Add new features (iOS support, voice input, etc.)
+- 🐛 Fix bugs faster
+- 📱 Maintain and improve the app
+- 📚 Create better documentation
+
+---
+
 **Need help? Open an issue: https://github.com/xt67/OllamaGo/issues**
 
 **Metro bundler won't start:**
