@@ -125,6 +125,10 @@ const SimpleChatScreen: React.FC<ChatScreenProps> = ({navigation}) => {
         }
       } else {
         console.log('Response not OK:', response.status, response.statusText);
+        Alert.alert(
+          'Connection Error',
+          `Server responded with status ${response.status}. Please check your Ollama server.`
+        );
       }
     } catch (error) {
       console.log('Could not detect models, using default:', error);
@@ -132,8 +136,44 @@ const SimpleChatScreen: React.FC<ChatScreenProps> = ({navigation}) => {
       if (error instanceof Error) {
         if (error.name === 'AbortError') {
           console.log('Connection timed out - check if Ollama is running and accessible');
+          Alert.alert(
+            'Connection Timeout',
+            `Could not reach Ollama server at ${connectionConfig.serverUrl}:${connectionConfig.port}\n\n` +
+            'Please check:\n' +
+            '1. Your phone and PC are on the same Wi-Fi network\n' +
+            '2. The IP address is correct\n' +
+            '3. Ollama is running on your PC\n' +
+            '4. Windows Firewall allows port 11434',
+            [
+              {text: 'Change Connection', onPress: () => navigation.navigate('Connection')},
+              {text: 'OK', style: 'cancel'}
+            ]
+          );
         } else if (error.message.includes('Network request failed')) {
           console.log('Network error - check IP address and make sure Ollama allows external connections');
+          Alert.alert(
+            'Network Error',
+            `Cannot connect to ${connectionConfig.serverUrl}:${connectionConfig.port}\n\n` +
+            'Troubleshooting:\n' +
+            '1. Verify your PC IP address (run "ipconfig" on PC)\n' +
+            '2. Make sure both devices are on the same network\n' +
+            '3. Test by opening http://${connectionConfig.serverUrl}:${connectionConfig.port}/api/tags in your phone browser\n' +
+            '4. Check if Ollama is running: "ollama list" on PC',
+            [
+              {text: 'Change Connection', onPress: () => navigation.navigate('Connection')},
+              {text: 'Retry', onPress: () => detectAvailableModel()},
+              {text: 'Cancel', style: 'cancel'}
+            ]
+          );
+        } else {
+          Alert.alert(
+            'Connection Error',
+            `Error: ${error.message}\n\nServer: ${connectionConfig.serverUrl}:${connectionConfig.port}`,
+            [
+              {text: 'Change Connection', onPress: () => navigation.navigate('Connection')},
+              {text: 'OK', style: 'cancel'}
+            ]
+          );
         }
       }
       // Keep default model if detection fails

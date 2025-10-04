@@ -70,6 +70,8 @@ const ConnectionScreen: React.FC<ConnectionScreenProps> = ({navigation}) => {
       const protocol = config.useHttps ? 'https' : 'http';
       const url = `${protocol}://${config.serverUrl}:${config.port}/api/tags`;
       
+      console.log('Testing connection to:', url);
+      
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 10000);
       
@@ -85,10 +87,12 @@ const ConnectionScreen: React.FC<ConnectionScreenProps> = ({navigation}) => {
       clearTimeout(timeoutId);
 
       if (response.ok) {
+        const data = await response.json();
+        const modelCount = data.models?.length || 0;
         await saveConfig(config);
         Alert.alert(
-          'Success!', 
-          'Connection established successfully. You can now start chatting!',
+          'Connection Successful! ✅', 
+          `Found ${modelCount} model(s) on your Ollama server.\n\nYou can now start chatting!`,
           [
             {
               text: 'Start Chat',
@@ -104,11 +108,41 @@ const ConnectionScreen: React.FC<ConnectionScreenProps> = ({navigation}) => {
         throw new Error(`Server responded with status: ${response.status}`);
       }
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-      Alert.alert(
-        'Connection Failed',
-        `Unable to connect to Ollama server. Please check your settings and try again.\n\nError: ${errorMessage}`
-      );
+      console.error('Connection test failed:', error);
+      let errorTitle = 'Connection Failed';
+      let errorMessage = '';
+      
+      if (error instanceof Error) {
+        if (error.name === 'AbortError') {
+          errorTitle = 'Connection Timeout';
+          errorMessage = 
+            `Could not reach ${config.serverUrl}:${config.port} within 10 seconds.\n\n` +
+            '✓ Check if your PC and phone are on the same Wi-Fi network\n' +
+            '✓ Verify the IP address is correct\n' +
+            '✓ Make sure Ollama is running on your PC\n' +
+            '✓ Check Windows Firewall settings';
+        } else if (error.message.includes('Network request failed')) {
+          errorTitle = 'Network Error';
+          errorMessage = 
+            `Cannot connect to ${config.serverUrl}:${config.port}\n\n` +
+            'Troubleshooting steps:\n\n' +
+            '1️⃣ Verify PC IP address:\n' +
+            '   • Run "ipconfig" on your PC\n' +
+            '   • Look for "IPv4 Address"\n\n' +
+            '2️⃣ Test in phone browser:\n' +
+            `   • Open: http://${config.serverUrl}:${config.port}/api/tags\n` +
+            '   • Should show JSON data\n\n' +
+            '3️⃣ Confirm Ollama is running:\n' +
+            '   • Run "ollama list" on PC\n\n' +
+            '4️⃣ Both devices must be on same network';
+        } else {
+          errorMessage = `Error: ${error.message}\n\nServer: ${config.serverUrl}:${config.port}`;
+        }
+      } else {
+        errorMessage = 'An unknown error occurred. Please try again.';
+      }
+      
+      Alert.alert(errorTitle, errorMessage);
     } finally {
       setIsConnecting(false);
     }
