@@ -87,6 +87,15 @@ const SimpleChatScreen: React.FC<ChatScreenProps> = ({navigation}) => {
     if (!connectionConfig) return;
     
     try {
+      // First check if user has selected a model
+      const savedModel = await AsyncStorage.getItem('selectedModel');
+      if (savedModel) {
+        setAvailableModel(savedModel);
+        console.log('Using user-selected model:', savedModel);
+        return;
+      }
+
+      // If no saved model, auto-detect
       const protocol = connectionConfig.useHttps ? 'https' : 'http';
       const url = `${protocol}://${connectionConfig.serverUrl}:${connectionConfig.port}/api/tags`;
       
@@ -110,19 +119,9 @@ const SimpleChatScreen: React.FC<ChatScreenProps> = ({navigation}) => {
         const data = await response.json();
         console.log('Models response:', data);
         if (data.models && data.models.length > 0) {
-          // Prefer mistral, then any other model
-          const mistralModel = data.models.find((model: any) => 
-            model.name.toLowerCase().includes('mistral')
-          );
-          
-          if (mistralModel) {
-            setAvailableModel(mistralModel.name);
-            console.log('Using Mistral model:', mistralModel.name);
-          } else {
-            // Use the first available model if no mistral found
-            setAvailableModel(data.models[0].name);
-            console.log('Using first available model:', data.models[0].name);
-          }
+          // Use the first available model
+          setAvailableModel(data.models[0].name);
+          console.log('Using first available model:', data.models[0].name);
         }
       } else {
         console.log('Response not OK:', response.status, response.statusText);
@@ -389,7 +388,9 @@ const SimpleChatScreen: React.FC<ChatScreenProps> = ({navigation}) => {
         {message.text}
       </Text>
       <Text style={styles.timestamp}>
-        {message.timestamp.toLocaleTimeString()}
+        {message.timestamp instanceof Date 
+          ? message.timestamp.toLocaleTimeString() 
+          : new Date(message.timestamp).toLocaleTimeString()}
       </Text>
     </View>
   );
@@ -409,7 +410,7 @@ const SimpleChatScreen: React.FC<ChatScreenProps> = ({navigation}) => {
       <KeyboardAvoidingView 
         style={styles.keyboardAvoid}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}>
+        keyboardVerticalOffset={0}>
         
         <ScrollView 
           style={styles.messagesContainer}
@@ -430,6 +431,7 @@ const SimpleChatScreen: React.FC<ChatScreenProps> = ({navigation}) => {
             value={inputText}
             onChangeText={setInputText}
             placeholder="Type your message..."
+            placeholderTextColor="#666666"
             multiline
             maxLength={1000}
           />
@@ -596,6 +598,7 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: 'row',
     padding: 12,
+    paddingBottom: 20,
     backgroundColor: '#1a1a1a',
     borderTopWidth: 1,
     borderTopColor: '#333333',
