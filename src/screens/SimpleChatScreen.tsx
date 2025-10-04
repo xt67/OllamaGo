@@ -290,7 +290,13 @@ const SimpleChatScreen: React.FC<ChatScreenProps> = ({navigation}) => {
   };
 
   const sendMessage = async () => {
+    console.log('🟣 SEND BUTTON CLICKED');
+    console.log('🟣 Input text:', inputText);
+    console.log('🟣 Is loading:', isLoading);
+    console.log('🟣 Connection config:', connectionConfig);
+    
     if (!inputText.trim() || !connectionConfig || isLoading) {
+      console.log('🟣 SEND BLOCKED - Input empty or loading or no config');
       return;
     }
 
@@ -301,6 +307,7 @@ const SimpleChatScreen: React.FC<ChatScreenProps> = ({navigation}) => {
       timestamp: new Date(),
     };
 
+    console.log('🟣 Sending message:', userMessage.text);
     setMessages(prev => [...prev, userMessage]);
     setInputText('');
     setIsLoading(true);
@@ -703,6 +710,7 @@ const styles = StyleSheet.create({
     height: '100%',
     backgroundColor: '#1a1a1a',
     paddingTop: 60,
+    paddingBottom: 100, // Add padding to avoid overlap with navigation
     borderRightWidth: 1,
     borderRightColor: '#333333',
     elevation: 5,
@@ -779,6 +787,8 @@ const styles = StyleSheet.create({
     borderTopColor: '#333333',
     paddingVertical: 12,
     paddingHorizontal: 8,
+    paddingBottom: 20, // Extra padding at bottom
+    marginBottom: 20, // Extra margin to ensure no overlap
   },
   footerButton: {
     flex: 1,
