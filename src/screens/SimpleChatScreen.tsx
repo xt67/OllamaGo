@@ -494,11 +494,19 @@ const SimpleChatScreen: React.FC<ChatScreenProps> = ({navigation}) => {
             placeholderTextColor="#666666"
             multiline
             maxLength={1000}
+            editable={!isLoading}
           />
           <TouchableOpacity
-            style={[styles.sendButton, (!inputText.trim() || isLoading) && styles.sendButtonDisabled]}
-            onPress={sendMessage}
-            disabled={!inputText.trim() || isLoading}>
+            style={[
+              styles.sendButton, 
+              (!inputText.trim() || isLoading) && styles.sendButtonDisabled
+            ]}
+            onPress={() => {
+              if (inputText.trim() && !isLoading) {
+                sendMessage();
+              }
+            }}
+            activeOpacity={0.7}>
             <Text style={styles.sendButtonText}>Send</Text>
           </TouchableOpacity>
         </View>
@@ -723,7 +731,7 @@ const styles = StyleSheet.create({
     height: '100%',
     backgroundColor: '#1a1a1a',
     paddingTop: 60,
-    paddingBottom: 100, // Add padding to avoid overlap with navigation
+    paddingBottom: 20, // Small padding to avoid overlap with navigation
     borderRightWidth: 1,
     borderRightColor: '#333333',
     elevation: 5,
@@ -800,8 +808,7 @@ const styles = StyleSheet.create({
     borderTopColor: '#333333',
     paddingVertical: 12,
     paddingHorizontal: 8,
-    paddingBottom: 20, // Extra padding at bottom
-    marginBottom: 20, // Extra margin to ensure no overlap
+    paddingBottom: 16, // Small padding at bottom
   },
   footerButton: {
     flex: 1,
