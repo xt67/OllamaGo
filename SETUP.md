@@ -1,190 +1,442 @@
-# OllamaGo Setup Instructions
+# OllamaGo Setup Guide
 
-## Quick Start Guide
+Complete setup instructions for OllamaGo - Your Personal AI Companion on Android
 
-### 1. Prerequisites Installation
+## 📱 For End Users (Just Want to Use the App)
 
-**Install Node.js (Required)**
-- Download and install Node.js v16+ from [nodejs.org](https://nodejs.org)
-- Verify installation: `node --version` and `npm --version`
+### Quick Install
 
-**Install React Native CLI**
+1. **Download APK**
+   - Visit [Releases](https://github.com/xt67/OllamaGo/releases/latest)
+   - Download `app-release.apk`
+
+2. **Install on Android**
+   - Enable "Install from Unknown Sources" in Settings → Security
+   - Open the downloaded APK
+   - Tap "Install"
+
+3. **Setup Ollama on Your PC**
+   - Download Ollama from [ollama.ai](https://ollama.ai)
+   - Install and run: `ollama serve`
+   - Pull a model: `ollama pull llama2`
+
+4. **Connect from Phone**
+   - Find your PC's IP: `ipconfig` (Windows) or `ifconfig` (Mac/Linux)
+   - Open OllamaGo → Connection Settings
+   - Enter IP address and port 11434
+   - Test connection and start chatting!
+
+---
+
+## 💻 For Developers (Want to Build/Modify)
+
+### Prerequisites
+
+**Required Software:**
+- Node.js v16+ ([Download](https://nodejs.org))
+- JDK 17 ([Eclipse Adoptium](https://adoptium.net/))
+- Android Studio & SDK ([Download](https://developer.android.com/studio))
+- Git
+
+**Verify Installations:**
 ```bash
-npm install -g react-native-cli
+node --version    # Should be v16+
+npm --version
+java --version    # Should be 17
 ```
 
-**For iOS Development (macOS only):**
-- Install Xcode from Mac App Store
-- Install Xcode Command Line Tools: `xcode-select --install`
-- Install CocoaPods: `sudo gem install cocoapods`
+### Development Setup
 
-**For Android Development:**
-- Install Android Studio from [developer.android.com](https://developer.android.com/studio)
-- Install Android SDK (API level 31+)
-- Set ANDROID_HOME environment variable
-- Add Android tools to PATH
-
-### 2. Project Setup
-
-**1. Open the project folder in VS Code:**
+**1. Clone Repository:**
 ```bash
-# Navigate to the OllamaGo directory
+git clone https://github.com/xt67/OllamaGo.git
 cd OllamaGo
 ```
 
-**2. Install dependencies:**
+**2. Install Dependencies:**
 ```bash
 npm install
 ```
 
-**3. For iOS (macOS only):**
-```bash
-cd ios
-pod install
-cd ..
-```
-
-**4. Start Metro bundler:**
+**3. Start Development Server:**
 ```bash
 npm start
+# or
+npx expo start
 ```
 
-**5. Run on device/simulator:**
-
-For iOS:
-```bash
-npm run ios
-```
-
-For Android:
+**4. Run on Android Device/Emulator:**
 ```bash
 npm run android
+# or
+npx expo run:android
 ```
 
-### 3. Ollama Server Setup
+### Building Production APK
 
-**Install Ollama on your laptop/desktop:**
+**1. Set Environment Variables:**
 
-1. Visit [https://ollama.ai](https://ollama.ai)
-2. Download Ollama for your operating system
-3. Install and launch Ollama
+Windows (PowerShell):
+```powershell
+$env:JAVA_HOME = "C:\Program Files\Eclipse Adoptium\jdk-17.0.16.8-hotspot"
+```
 
-**Pull AI models:**
+Linux/macOS:
 ```bash
-# Install popular models
-ollama pull llama2
-ollama pull mistral
-ollama pull codellama
+export JAVA_HOME="/path/to/jdk-17"
 ```
 
-**Configure for network access:**
-
-By default, Ollama only accepts local connections. To connect from mobile devices:
-
-**Option 1: Environment Variable (Recommended)**
+**2. Build APK:**
 ```bash
-# Windows (PowerShell)
-$env:OLLAMA_HOST = "0.0.0.0:11434"
-
-# macOS/Linux
-export OLLAMA_HOST=0.0.0.0:11434
+cd android
+./gradlew assembleRelease
 ```
 
-**Option 2: Command Line**
-```bash
-ollama serve --host 0.0.0.0:11434
+**3. Find APK:**
+```
+android/app/build/outputs/apk/release/app-release.apk
 ```
 
-### 4. Network Configuration
+### Project Structure
 
-**Find your computer's IP address:**
+```
+OllamaGo/
+├── android/                          # Android native code
+│   ├── app/
+│   │   ├── build.gradle             # Android build config
+│   │   └── src/main/
+│   │       ├── AndroidManifest.xml  # App manifest with permissions
+│   │       └── res/xml/
+│   │           └── network_security_config.xml  # HTTP cleartext config
+│   └── build.gradle                 # Root build config
+├── src/
+│   ├── App.tsx                      # Main app with navigation stack
+│   ├── screens/
+│   │   ├── SimpleChatScreen.tsx     # Main chat UI with persistent memory
+│   │   ├── ConnectionScreen.tsx     # Ollama server configuration
+│   │   ├── HomeScreen.tsx          # Welcome/landing screen
+│   │   └── SettingsScreen.tsx      # App settings
+│   └── services/
+│       ├── OllamaService.ts        # Ollama API client
+│       └── StorageService.ts       # AsyncStorage wrapper
+├── app.json                         # Expo/RN configuration
+├── package.json                     # NPM dependencies
+├── tsconfig.json                    # TypeScript config
+└── README.md                        # Documentation
+```
+
+---
+
+## 🔧 Ollama Server Configuration
+
+### Installation
 
 **Windows:**
 ```bash
-ipconfig
+# Download from ollama.ai and run installer
+# Ollama will be available at localhost:11434
 ```
-Look for "IPv4 Address" (usually 192.168.x.x or 10.x.x.x)
 
 **macOS:**
 ```bash
-ifconfig | grep "inet "
+brew install ollama
+ollama serve
 ```
 
 **Linux:**
 ```bash
-ip addr show
+curl -fsSL https://ollama.ai/install.sh | sh
+ollama serve
 ```
 
-**Configure firewall:**
-- Ensure port 11434 is open in your firewall
-- Allow incoming connections for Ollama
-
-### 5. Mobile App Configuration
-
-1. **Launch OllamaGo** on your mobile device
-2. **Tap "Connect to Ollama"**
-3. **Enter connection details:**
-   - Server URL: Your computer's IP address
-   - Port: 11434
-   - HTTPS: Usually disabled for local networks
-   - API Key: Leave empty unless configured
-
-Example:
-```
-Server URL: 192.168.1.100
-Port: 11434
-HTTPS: No
-API Key: (empty)
-```
-
-4. **Test the connection**
-5. **Start chatting!**
-
-## Development Commands
+### Pull AI Models
 
 ```bash
-# Install dependencies
-npm install
+# Popular models
+ollama pull llama2        # Meta's Llama 2 (7B)
+ollama pull llama3        # Meta's Llama 3 (8B)
+ollama pull mistral       # Mistral 7B
+ollama pull mixtral       # Mixtral 8x7B
+ollama pull codellama     # Code-specialized model
 
-# Start Metro bundler
-npm start
-
-# Run on iOS (macOS only)
-npm run ios
-
-# Run on Android
-npm run android
-
-# Run linting
-npm run lint
-
-# Build Android APK
-npm run build:android
-
-# Build iOS (requires Xcode)
-npm run build:ios
-
-# Clear Metro cache
-npx react-native start --reset-cache
+# Verify installation
+ollama list
 ```
 
-## Troubleshooting
+### Network Configuration for Mobile Access
+
+**Windows:**
+
+1. **Configure Firewall:**
+   - Open Windows Defender Firewall
+   - Click "Advanced settings"
+   - Add inbound rule for `Ollama.exe`
+   - Allow connections on port 11434
+
+2. **Find your IP:**
+   ```cmd
+   ipconfig
+   ```
+   Look for "IPv4 Address" under your Wi-Fi adapter (e.g., 192.168.1.100)
+
+3. **Verify Ollama is accessible:**
+   ```cmd
+   curl http://localhost:11434/api/tags
+   ```
+
+**macOS/Linux:**
+
+1. **Set Ollama host:**
+   ```bash
+   export OLLAMA_HOST=0.0.0.0:11434
+   ollama serve
+   ```
+
+2. **Find your IP:**
+   ```bash
+   ifconfig | grep "inet "   # macOS
+   ip addr show              # Linux
+   ```
+
+3. **Test from phone browser:**
+   ```
+   http://YOUR_PC_IP:11434/api/tags
+   ```
+   Should return JSON with your models.
+
+### Testing Connection
+
+**From Phone Browser:**
+```
+http://192.168.1.100:11434/api/tags
+```
+
+**Expected Response:**
+```json
+{
+  "models": [
+    {
+      "name": "llama2:latest",
+      "modified_at": "...",
+      "size": 3826793677,
+      "digest": "..."
+    }
+  ]
+}
+```
+
+If you see this, your Ollama server is ready!
+
+---
+
+## 📱 Using OllamaGo
+
+### First Launch
+
+1. **Open OllamaGo**
+2. Tap **"Connection Settings"** or **≡ → Settings**
+3. Enter your connection details:
+   - **Server URL**: Your PC's IP (e.g., `192.168.1.100`)
+   - **Port**: `11434`
+   - **Use HTTPS**: Unchecked (for local network)
+4. Tap **"Test Connection"**
+5. If successful, start chatting!
+
+### Using Persistent Memory
+
+**The AI remembers you across all chats:**
+
+1. **Tell the AI about yourself:**
+   ```
+   You: My name is Rayan and I'm a developer
+   AI: Nice to meet you, Rayan!
+   ```
+
+2. **Start a new chat** (Menu → New Chat)
+
+3. **Ask about previous info:**
+   ```
+   You: What's my name?
+   AI: Your name is Rayan!
+   
+   You: What do I do?
+   AI: You're a developer!
+   ```
+
+The memory persists even after:
+- ✅ Starting new chats
+- ✅ Closing the app
+- ✅ Restarting your phone
+
+### Managing Memory
+
+- **View what AI knows**: It's included in every response context
+- **Clear memory**: Settings → "Clear Memory"
+- **Memory auto-management**: Keeps last 2000 characters automatically
+
+### Chat Features
+
+- **New Chat**: Menu (≡) → "New Chat"
+- **Chat History**: Previous chats shown in sidebar
+- **Clear All Chats**: Deletes all chat sessions
+- **Change Model**: View available models in sidebar
+
+---
+
+## 🔍 Troubleshooting
 
 ### Connection Issues
 
-**"Connection Failed" Error:**
-1. Verify Ollama is running: `ollama list`
-2. Check IP address is correct
-3. Ensure both devices are on same network
-4. Verify firewall settings
-5. Try `localhost` if testing on same device
+**❌ "Network request failed"**
 
-**"No Models Available":**
-1. Pull models: `ollama pull llama2`
-2. Restart Ollama service
-3. Check available models: `ollama list`
+✅ **Solutions:**
+1. Verify both devices on same Wi-Fi
+2. Check IP address:
+   ```bash
+   # On PC
+   ipconfig          # Windows
+   ifconfig          # Mac/Linux
+   ```
+3. Test Ollama is running:
+   ```bash
+   ollama list       # Should show models
+   ```
+4. Test from phone browser:
+   ```
+   http://YOUR_PC_IP:11434/api/tags
+   ```
 
-### Build Issues
+**❌ "Connection timeout"**
+
+✅ **Solutions:**
+1. **Windows Firewall:**
+   - Allow Ollama.exe through firewall
+   - Allow inbound on port 11434
+
+2. **Verify Ollama serving:**
+   ```bash
+   ollama serve
+   ```
+
+3. **Check with curl:**
+   ```bash
+   curl http://YOUR_IP:11434/api/tags
+   ```
+
+**❌ "Model not found"**
+
+✅ **Solutions:**
+1. Pull the model:
+   ```bash
+   ollama pull llama2
+   ```
+2. List available models:
+   ```bash
+   ollama list
+   ```
+3. Restart Ollama service
+
+### App Issues
+
+**❌ Send button not working**
+- Type a message first
+- Ensure connected to server
+- Check connection in settings
+
+**❌ Memory not saving**
+- Memory saves after each AI response
+- Check Android storage permissions
+- Try "Clear Memory" then start fresh
+
+**❌ App crashes on startup**
+- Uninstall and reinstall APK
+- Clear app data in Android settings
+- Download latest version from releases
+
+### Build Issues (Developers)
+
+**❌ "No Java compiler found"**
+
+✅ **Solution:**
+```bash
+# Set JAVA_HOME
+export JAVA_HOME="/path/to/jdk-17"  # Linux/Mac
+$env:JAVA_HOME = "C:\Program Files\Eclipse Adoptium\jdk-17.0.16.8-hotspot"  # Windows
+```
+
+**❌ Gradle build fails**
+
+✅ **Solutions:**
+1. Clean gradle cache:
+   ```bash
+   cd android
+   ./gradlew clean
+   ```
+
+2. Delete build folders:
+   ```bash
+   rm -rf android/app/build
+   rm -rf android/build
+   ```
+
+3. Rebuild:
+   ```bash
+   ./gradlew assembleRelease
+   ```
+
+**❌ Metro bundler cache issues**
+
+✅ **Solution:**
+```bash
+npx react-native start --reset-cache
+```
+
+---
+
+## 📚 Additional Resources
+
+- **Ollama Documentation**: https://github.com/ollama/ollama
+- **React Native Docs**: https://reactnative.dev
+- **Expo Documentation**: https://docs.expo.dev
+- **Report Issues**: https://github.com/xt67/OllamaGo/issues
+
+---
+
+## 🎯 Quick Reference
+
+### Essential Commands
+
+```bash
+# Ollama
+ollama serve                    # Start Ollama server
+ollama pull llama2             # Download model
+ollama list                    # List installed models
+ollama run llama2              # Test model
+
+# Development
+npm start                      # Start Metro bundler
+npm run android               # Run on Android
+npx expo start                # Alternative start command
+
+# Building
+cd android
+./gradlew assembleRelease     # Build APK
+```
+
+### Default Ports
+
+- Ollama: `11434`
+- Metro: `8081`
+
+### Important Paths
+
+- APK Output: `android/app/build/outputs/apk/release/app-release.apk`
+- Network Config: `android/app/src/main/res/xml/network_security_config.xml`
+- Android Manifest: `android/app/src/main/AndroidManifest.xml`
+
+---
+
+**Need help? Open an issue: https://github.com/xt67/OllamaGo/issues**
 
 **Metro bundler won't start:**
 ```bash
